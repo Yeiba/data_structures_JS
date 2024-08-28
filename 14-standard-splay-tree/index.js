@@ -1,18 +1,18 @@
-class Node {
-    constructor(data) {
-        if (data === null) {
-            throw new Error("Null data not allowed into tree");
-        }
-        this.data = data;
-        this.left = null;
-        this.right = null;
-    }
-}
-
 class SplayTree {
     constructor() {
         this.root = null;
     }
+    // Internal Node class
+    static Node = class {
+        constructor(data) {
+            if (data === null) {
+                throw new Error("Null data not allowed into tree");
+            }
+            this.data = data;
+            this.left = null;
+            this.right = null;
+        }
+    };
 
     // Public Methods
     search(node) {
@@ -23,14 +23,14 @@ class SplayTree {
 
     insert(node) {
         if (this.root === null) {
-            this.root = new Node(node);
+            this.root = new SplayTree.Node(node);
             return this.root;
         }
         this.splay(node);
 
         const [left, right] = this.split(node);
 
-        this.root = new Node(node);
+        this.root = new SplayTree.Node(node);
         this.root.left = left;
         this.root.right = right;
 

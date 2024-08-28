@@ -1,16 +1,16 @@
-class Node {
-    constructor(data, left = null, right = null) {
-        this.data = data;
-        this.left = left;
-        this.right = right;
-    }
-}
-
 class BinarySearchTree {
     constructor() {
         this.nodeCount = 0;
         this.root = null;
     }
+    // Internal Node class
+    static Node = class {
+        constructor(data, left = null, right = null) {
+            this.data = data;
+            this.left = left;
+            this.right = right;
+        }
+    };
 
     // Check if the tree is empty
     isEmpty() {
@@ -36,7 +36,7 @@ class BinarySearchTree {
     // Recursive helper method to add an element
     _add(node, elem) {
         if (node === null) {
-            return new Node(elem);
+            return new BinarySearchTree.Node(elem);
         }
 
         if (elem < node.data) {

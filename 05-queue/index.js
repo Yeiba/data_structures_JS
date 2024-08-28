@@ -1,10 +1,3 @@
-class Node {
-    constructor(data) {
-        this.data = data;
-        this.next = null;
-    }
-}
-
 class Queue {
     constructor(firstElem = null) {
         this.head = null;
@@ -16,6 +9,13 @@ class Queue {
         }
     }
 
+    // Internal Node class
+    static Node = class {
+        constructor(data) {
+            this.data = data;
+            this.next = null;
+        }
+    };
     // Return the size of the queue
     size() {
         return this._size;
@@ -51,7 +51,7 @@ class Queue {
 
     // Add an element to the back of the queue
     offer(elem) {
-        const newNode = new Node(elem);
+        const newNode = new Queue.Node(elem);
 
         if (this.isEmpty()) {
             this.head = this.tail = newNode;
