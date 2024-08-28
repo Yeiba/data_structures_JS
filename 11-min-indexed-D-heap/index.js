@@ -13,7 +13,7 @@ class MinIndexedDHeap {
         this.values = new Array(this.N);
 
         for (let i = 0; i < this.N; i++) {
-            this.parent[i] = Math.floor((i - 1) / this.D);
+            this.parent[i] = i === 0 ? null : Math.floor((i - 1) / this.D);
             this.child[i] = i * this.D + 1;
         }
     }
@@ -128,9 +128,8 @@ class MinIndexedDHeap {
         const from = this.child[i];
         const to = Math.min(this.sz, from + this.D);
         for (let j = from; j < to; j++) {
-            if (j < this.sz && this.less(j, i)) {
+            if (j < this.sz && (minIdx === -1 || this.less(j, minIdx))) {
                 minIdx = j;
-                break;
             }
         }
         return minIdx;
@@ -145,7 +144,7 @@ class MinIndexedDHeap {
     }
 
     less(i, j) {
-        return this.values[this.im[i]].compareTo(this.values[this.im[j]]) < 0;
+        return this.values[this.im[i]] < this.values[this.im[j]];
     }
 
     valueNotNullOrThrow(value) {
@@ -187,13 +186,6 @@ class MinIndexedDHeap {
         return this.im.slice(0, this.sz).toString();
     }
 }
-
-// Helper function for comparison
-Object.prototype.compareTo = function (other) {
-    if (this < other) return -1;
-    if (this > other) return 1;
-    return 0;
-};
 
 // Example usage
 const heap = new MinIndexedDHeap(3, 10); // Ternary heap
