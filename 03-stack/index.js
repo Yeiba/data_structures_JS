@@ -24,19 +24,27 @@ class Stack {
     // Pop an element off the stack
     // Throws an error if the stack is empty
     pop() {
-        if (this.isEmpty()) {
-            throw new Error("Empty stack");
+        try {
+            if (this.isEmpty()) {
+                throw new Error("Empty stack");
+            }
+            return this.list.pop();
+        } catch (e) {
+            console.error("Error:", e.message);
         }
-        return this.list.pop();
     }
 
     // Peek the top of the stack without removing an element
     // Throws an error if the stack is empty
     peek() {
-        if (this.isEmpty()) {
-            throw new Error("Empty stack");
+        try {
+            if (this.isEmpty()) {
+                throw new Error("Empty stack");
+            }
+            return this.list[this.list.length - 1];
+        } catch (e) {
+            console.error("Error:", e.message);
         }
-        return this.list[this.list.length - 1];
     }
 
     // Allow users to iterate through the stack using an iterator

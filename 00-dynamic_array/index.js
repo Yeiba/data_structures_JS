@@ -3,9 +3,9 @@ class DynamicArray {
         if (capacity < 0) {
             throw new Error(`Illegal Capacity: ${capacity}`);
         }
-        this.capacity = capacity;
         this.arr = new Array(capacity);
         this.len = 0; // length user thinks array is
+        this.capacity = capacity;
     }
 
     size() {
@@ -17,17 +17,25 @@ class DynamicArray {
     }
 
     get(index) {
-        if (index < 0 || index >= this.len) {
-            throw new Error('Index out of bounds');
+        try {
+            if (index < 0 || index >= this.len) {
+                throw new Error('Index out of bounds');
+            }
+            return this.arr[index];
+        } catch (e) {
+            console.error("Error:", e.message);
         }
-        return this.arr[index];
     }
 
     set(index, elem) {
-        if (index < 0 || index >= this.len) {
-            throw new Error('Index out of bounds');
+        try {
+            if (index < 0 || index >= this.len) {
+                throw new Error('Index out of bounds');
+            }
+            this.arr[index] = elem;
+        } catch (e) {
+            console.error("Error:", e.message);
         }
-        this.arr[index] = elem;
     }
 
     clear() {
@@ -52,19 +60,23 @@ class DynamicArray {
     }
 
     removeAt(rmIndex) {
-        if (rmIndex < 0 || rmIndex >= this.len) {
-            throw new Error('Index out of bounds');
-        }
-        const data = this.arr[rmIndex];
-        const newArr = new Array(this.len - 1);
-        for (let i = 0, j = 0; i < this.len; i++) {
-            if (i !== rmIndex) {
-                newArr[j++] = this.arr[i];
+        try {
+            if (rmIndex < 0 || rmIndex >= this.len) {
+                throw new Error('Index out of bounds');
             }
+            const data = this.arr[rmIndex];
+            const newArr = new Array(this.len - 1);
+            for (let i = 0, j = 0; i < this.len; i++) {
+                if (i !== rmIndex) {
+                    newArr[j++] = this.arr[i];
+                }
+            }
+            this.arr = newArr;
+            this.capacity = --this.len;
+            return data;
+        } catch (e) {
+            console.error("Error:", e.message);
         }
-        this.arr = newArr;
-        this.capacity = --this.len;
-        return data;
     }
 
     remove(obj) {

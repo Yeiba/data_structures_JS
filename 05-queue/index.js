@@ -29,24 +29,32 @@ class Queue {
     // Peek the element at the front of the queue
     // The method throws an error if the queue is empty
     peek() {
-        if (this.isEmpty()) throw new Error("Queue Empty");
-        return this.head.data;
+        try {
+            if (this.isEmpty()) throw new Error("Queue Empty");
+            return this.head.data;
+        } catch (e) {
+            console.error("Error:", e.message);
+        }
     }
 
     // Poll an element from the front of the queue
     // The method throws an error if the queue is empty
     poll() {
-        if (this.isEmpty()) throw new Error("Queue Empty");
+        try {
+            if (this.isEmpty()) throw new Error("Queue Empty");
 
-        const data = this.head.data;
-        this.head = this.head.next;
-        this._size--;
+            const data = this.head.data;
+            this.head = this.head.next;
+            this._size--;
 
-        if (this.isEmpty()) {
-            this.tail = null;
+            if (this.isEmpty()) {
+                this.tail = null;
+            }
+
+            return data;
+        } catch (e) {
+            console.error("Error:", e.message);
         }
-
-        return data;
     }
 
     // Add an element to the back of the queue

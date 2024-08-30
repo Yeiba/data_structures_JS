@@ -16,26 +16,38 @@ class IntStack {
 
     // Returns the element at the top of the stack
     peek() {
-        if (this.isEmpty()) {
-            throw new Error("Stack is empty");
+        try {
+            if (this.isEmpty()) {
+                throw new Error("Stack is empty");
+            }
+            return this.ar[this.pos - 1];
+        } catch (e) {
+            console.error("Error:", e.message);
         }
-        return this.ar[this.pos - 1];
     }
 
     // Adds an element to the top of the stack
     push(value) {
-        if (typeof value !== 'number' || !Number.isInteger(value)) {
-            throw new TypeError("Only integers are allowed");
+        try {
+            if (typeof value !== 'number' || !Number.isInteger(value)) {
+                throw new TypeError("Only integers are allowed");
+            }
+            this.ar[this.pos++] = value;
+        } catch (e) {
+            console.error("Error:", e.message);
         }
-        this.ar[this.pos++] = value;
     }
 
     // Removes and returns the element from the top of the stack
     pop() {
-        if (this.isEmpty()) {
-            throw new Error("Stack is empty");
+        try {
+            if (this.isEmpty()) {
+                throw new Error("Stack is empty");
+            }
+            return this.ar[--this.pos];
+        } catch (e) {
+            console.error("Error:", e.message);
         }
-        return this.ar[--this.pos];
     }
 }
 

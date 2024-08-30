@@ -1,13 +1,11 @@
 class IntArray {
-    static DEFAULT_CAP = 8;
-
-    constructor(capacity = IntArray.DEFAULT_CAP) {
+    constructor(capacity = 16) {
         if (capacity < 0) {
             throw new Error(`Illegal Capacity: ${capacity}`);
         }
-        this.capacity = capacity;
         this.arr = new Array(capacity).fill(0);
         this.len = 0;
+        this.capacity = capacity;
     }
 
     // Initialize with an existing array
@@ -30,17 +28,25 @@ class IntArray {
     }
 
     get(index) {
-        if (index < 0 || index >= this.len) {
-            throw new Error('Index out of bounds');
+        try {
+            if (index < 0 || index >= this.len) {
+                throw new Error('Index out of bounds');
+            }
+            return this.arr[index];
+        } catch (e) {
+            console.error("Error:", e.message);
         }
-        return this.arr[index];
     }
 
     set(index, elem) {
-        if (index < 0 || index >= this.len) {
-            throw new Error('Index out of bounds');
+        try {
+            if (index < 0 || index >= this.len) {
+                throw new Error('Index out of bounds');
+            }
+            this.arr[index] = elem;
+        } catch (e) {
+            console.error("Error:", e.message);
         }
-        this.arr[index] = elem;
     }
 
     add(elem) {
@@ -56,13 +62,17 @@ class IntArray {
     }
 
     removeAt(rmIndex) {
-        if (rmIndex < 0 || rmIndex >= this.len) {
-            throw new Error('Index out of bounds');
+        try {
+            if (rmIndex < 0 || rmIndex >= this.len) {
+                throw new Error('Index out of bounds');
+            }
+            for (let i = rmIndex; i < this.len - 1; i++) {
+                this.arr[i] = this.arr[i + 1];
+            }
+            this.arr[--this.len] = 0;
+        } catch (e) {
+            console.error("Error:", e.message);
         }
-        for (let i = rmIndex; i < this.len - 1; i++) {
-            this.arr[i] = this.arr[i + 1];
-        }
-        this.arr[--this.len] = 0;
     }
 
     remove(elem) {

@@ -21,25 +21,37 @@ class IntQueue {
 
     // Peek at the front element without removing it
     peek() {
-        if (this.isEmpty()) throw new Error("Queue is empty");
-        return this.ar[this.front];
+        try {
+            if (this.isEmpty()) throw new Error("Queue is empty");
+            return this.ar[this.front];
+        } catch (e) {
+            console.error("Error:", e.message);
+        }
     }
 
     // Add an element to the end of the queue
     enqueue(value) {
-        if ((this.end + 1) % this.ar.length === this.front) {
-            throw new Error("Queue too small!");
+        try {
+            if ((this.end + 1) % this.ar.length === this.front) {
+                throw new Error("Queue too small!");
+            }
+            this.ar[this.end] = value;
+            this.end = (this.end + 1) % this.ar.length;
+        } catch (e) {
+            console.error("Error:", e.message);
         }
-        this.ar[this.end] = value;
-        this.end = (this.end + 1) % this.ar.length;
     }
 
     // Remove and return the element at the front of the queue
     dequeue() {
-        if (this.isEmpty()) throw new Error("Queue is empty");
-        const value = this.ar[this.front];
-        this.front = (this.front + 1) % this.ar.length;
-        return value;
+        try {
+            if (this.isEmpty()) throw new Error("Queue is empty");
+            const value = this.ar[this.front];
+            this.front = (this.front + 1) % this.ar.length;
+            return value;
+        } catch (e) {
+            console.error("Error:", e.message);
+        }
     }
 }
 

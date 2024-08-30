@@ -66,42 +66,58 @@ class DoublyLinkedList {
 
     // Check the value of the first node if it exists
     peekFirst() {
-        if (this.isEmpty()) throw new Error("Empty list");
-        return this.head.data;
+        try {
+            if (this.isEmpty()) throw new Error("Empty list");
+            return this.head.data;
+        } catch (e) {
+            console.error("Error:", e.message);
+        }
     }
 
     // Check the value of the last node if it exists
     peekLast() {
-        if (this.isEmpty()) throw new Error("Empty list");
-        return this.tail.data;
+        try {
+            if (this.isEmpty()) throw new Error("Empty list");
+            return this.tail.data;
+        } catch (e) {
+            console.error("Error:", e.message);
+        }
     }
 
     // Remove the first value at the head of the linked list
     removeFirst() {
-        if (this.isEmpty()) throw new Error("Empty list");
+        try {
+            if (this.isEmpty()) throw new Error("Empty list");
 
-        const data = this.head.data;
-        this.head = this.head.next;
-        this.size--;
+            const data = this.head.data;
+            this.head = this.head.next;
+            this.size--;
 
-        if (this.isEmpty()) this.tail = null;
-        else this.head.prev = null;
+            if (this.isEmpty()) this.tail = null;
+            else this.head.prev = null;
 
-        return data;
+            return data;
+        } catch (e) {
+            console.error("Error:", e.message);
+        }
     }
 
     // Remove the last value at the tail of the linked list
     removeLast() {
-        if (this.isEmpty()) throw new Error("Empty list");
+        try {
+            if (this.isEmpty()) throw new Error("Empty list");
 
-        const data = this.tail.data;
-        this.tail = this.tail.prev;
-        this.size--;
+            const data = this.tail.data;
+            this.tail = this.tail.prev;
+            this.size--;
 
-        if (this.isEmpty()) this.head = null;
-        else this.tail.next = null;
+            if (this.isEmpty()) this.head = null;
+            else this.tail.next = null;
 
-        return data;
+            return data;
+        } catch (e) {
+            console.error("Error:", e.message);
+        }
     }
 
     // Remove an arbitrary node from the linked list
@@ -123,24 +139,28 @@ class DoublyLinkedList {
 
     // Remove a node at a particular index
     removeAt(index) {
-        if (index < 0 || index >= this.size) {
-            throw new Error("Index out of bounds");
-        }
-
-        let trav;
-        if (index < this.size / 2) {
-            trav = this.head;
-            for (let i = 0; i !== index; i++) {
-                trav = trav.next;
+        try {
+            if (index < 0 || index >= this.size) {
+                throw new Error("Index out of bounds");
             }
-        } else {
-            trav = this.tail;
-            for (let i = this.size - 1; i !== index; i--) {
-                trav = trav.prev;
-            }
-        }
 
-        return this.remove(trav);
+            let trav;
+            if (index < this.size / 2) {
+                trav = this.head;
+                for (let i = 0; i !== index; i++) {
+                    trav = trav.next;
+                }
+            } else {
+                trav = this.tail;
+                for (let i = this.size - 1; i !== index; i--) {
+                    trav = trav.prev;
+                }
+            }
+
+            return this.remove(trav);
+        } catch (e) {
+            console.error("Error:", e.message);
+        }
     }
 
     // Remove a particular value in the linked list
