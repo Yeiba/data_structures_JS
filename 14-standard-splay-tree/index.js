@@ -2,173 +2,222 @@ class SplayTree {
     constructor() {
         this.root = null;
     }
+
     // Internal Node class
     static Node = class {
-        constructor(data) {
-            if (data === null) {
-                throw new Error("Null data not allowed into tree");
-            }
-            this.data = data;
+        constructor(key, parent = null) {
+            this.key = key;
             this.left = null;
             this.right = null;
+            this.parent = parent;
         }
     };
 
-    // Public Methods
-    search(node) {
-        if (this.root === null) return null;
-        this.root = this.splay(node);
-        return this.root.data === node ? this.root : null;
+    // Rotate left operation
+    _rotateLeft(node) {
+        const newRoot = node.right;
+        node.right = newRoot.left;
+        if (newRoot.left !== null) {
+            newRoot.left.parent = node;
+        }
+        newRoot.parent = node.parent;
+        if (node.parent === null) {
+            this.root = newRoot;
+        } else if (node === node.parent.left) {
+            node.parent.left = newRoot;
+        } else {
+            node.parent.right = newRoot;
+        }
+        newRoot.left = node;
+        node.parent = newRoot;
     }
 
-    insert(node) {
+    // Rotate right operation
+    _rotateRight(node) {
+        const newRoot = node.left;
+        node.left = newRoot.right;
+        if (newRoot.right !== null) {
+            newRoot.right.parent = node;
+        }
+        newRoot.parent = node.parent;
+        if (node.parent === null) {
+            this.root = newRoot;
+        } else if (node === node.parent.right) {
+            node.parent.right = newRoot;
+        } else {
+            node.parent.left = newRoot;
+        }
+        newRoot.right = node;
+        node.parent = newRoot;
+    }
+
+    // Splay operation
+    _splay(node) {
+        while (node.parent !== null) {
+            if (node.parent.parent === null) {
+                // Zig step
+                if (node === node.parent.left) {
+                    this._rotateRight(node.parent);
+                } else {
+                    this._rotateLeft(node.parent);
+                }
+            } else if (node === node.parent.left && node.parent === node.parent.parent.left) {
+                // Zig-Zig step
+                this._rotateRight(node.parent.parent);
+                this._rotateRight(node.parent);
+            } else if (node === node.parent.right && node.parent === node.parent.parent.right) {
+                // Zig-Zig step
+                this._rotateLeft(node.parent.parent);
+                this._rotateLeft(node.parent);
+            } else if (node === node.parent.right && node.parent === node.parent.parent.left) {
+                // Zig-Zag step
+                this._rotateLeft(node.parent);
+                this._rotateRight(node.parent);
+            } else {
+                // Zig-Zag step
+                this._rotateRight(node.parent);
+                this._rotateLeft(node.parent);
+            }
+        }
+    }
+
+    // Find node with key
+    _find(key) {
+        let current = this.root;
+        while (current !== null) {
+            if (key < current.key) {
+                current = current.left;
+            } else if (key > current.key) {
+                current = current.right;
+            } else {
+                this._splay(current);
+                return current;
+            }
+        }
+        return null;
+    }
+
+    // Insert a new key
+    insert(key) {
         if (this.root === null) {
-            this.root = new SplayTree.Node(node);
-            return this.root;
+            this.root = new SplayTree.Node(key);
+            return;
         }
-        this.splay(node);
 
-        const [left, right] = this.split(node);
+        const foundNode = this._find(key);
+        if (foundNode !== null) {
+            return; // Key already exists
+        }
 
-        this.root = new SplayTree.Node(node);
-        this.root.left = left;
-        this.root.right = right;
-
-        return this.root;
+        const newNode = new SplayTree.Node(key);
+        if (key < this.root.key) {
+            newNode.right = this.root;
+            newNode.left = this.root.left;
+            if (this.root.left !== null) {
+                this.root.left.parent = newNode;
+            }
+            this.root.left = null;
+        } else {
+            newNode.left = this.root;
+            newNode.right = this.root.right;
+            if (this.root.right !== null) {
+                this.root.right.parent = newNode;
+            }
+            this.root.right = null;
+        }
+        this.root.parent = newNode;
+        this.root = newNode;
     }
 
-    delete(node) {
-        if (this.root === null) return null;
+    // Delete a key
+    delete(key) {
+        const node = this._find(key);
+        if (node === null) {
+            return; // Key not found
+        }
 
-        const searchResult = this.splay(node);
-
-        if (searchResult.data !== node) return null;
-
-        const leftSubtree = this.root.left;
-        const rightSubtree = this.root.right;
-
-        // Set the 'to be deleted' key ready for garbage collection
-        this.root.left = null;
-        this.root.right = null;
-
-        this.root = this.join(leftSubtree, rightSubtree);
-
-        return this.root;
+        this._splay(node);
+        if (node.left === null) {
+            this.root = node.right;
+            if (this.root !== null) {
+                this.root.parent = null;
+            }
+        } else {
+            const rightSubtree = node.right;
+            this.root = node.left;
+            this.root.parent = null;
+            let maxLeft = this.root;
+            while (maxLeft.right !== null) {
+                maxLeft = maxLeft.right;
+            }
+            this._splay(maxLeft);
+            this.root.right = rightSubtree;
+            if (rightSubtree !== null) {
+                rightSubtree.parent = this.root;
+            }
+        }
     }
 
-    findMax() {
-        let temp = this.root;
-        while (temp.right !== null) temp = temp.right;
-        return temp.data;
+    // Search for a key
+    search(key) {
+        return this._find(key) !== null;
     }
 
+    // Find the minimum key
     findMin() {
-        let temp = this.root;
-        while (temp.left !== null) temp = temp.left;
-        return temp.data;
-    }
-
-    // Private Methods
-    rightRotate(node) {
-        const p = node.left;
-        node.left = p.right;
-        p.right = node;
-        return p;
-    }
-
-    leftRotate(node) {
-        const p = node.right;
-        node.right = p.left;
-        p.left = node;
-        return p;
-    }
-
-    splayUtil(root, key) {
-        if (root === null || root.data === key) return root;
-
-        if (root.data > key) {
-            if (root.left === null) return root;
-
-            if (root.left.data > key) {
-                root.left.left = this.splayUtil(root.left.left, key);
-                root = this.rightRotate(root);
-            } else if (root.left.data < key) {
-                root.left.right = this.splayUtil(root.left.right, key);
-                if (root.left.right !== null) root.left = this.leftRotate(root.left);
-            }
-            return (root.left === null) ? root : this.rightRotate(root);
-        } else {
-            if (root.right === null) return root;
-
-            if (root.right.data > key) {
-                root.right.left = this.splayUtil(root.right.left, key);
-                if (root.right.left !== null) root.right = this.rightRotate(root.right);
-            } else if (root.right.data < key) {
-                root.right.right = this.splayUtil(root.right.right, key);
-                root = this.leftRotate(root);
-            }
-            return (root.right === null) ? root : this.leftRotate(root);
-        }
-    }
-
-    splay(node) {
         if (this.root === null) return null;
-        this.root = this.splayUtil(this.root, node);
-        return this.root;
-    }
 
-    split(node) {
-        let right;
-        let left;
-
-        if (node > this.root.data) {
-            right = this.root.right;
-            left = this.root;
-            left.right = null;
-        } else {
-            left = this.root.left;
-            right = this.root;
-            right.left = null;
+        let current = this.root;
+        while (current.left !== null) {
+            current = current.left;
         }
-        return [left, right];
+        this._splay(current);
+        return current.key;
     }
 
-    join(L, R) {
-        if (L === null) {
-            this.root = R;
-            return R;
+    // Find the maximum key
+    findMax() {
+        if (this.root === null) return null;
+
+        let current = this.root;
+        while (current.right !== null) {
+            current = current.right;
         }
-        this.root = this.splayUtil(L, this.findMax(L));
-        this.root.right = R;
-        return this.root;
+        this._splay(current);
+        return current.key;
     }
 
-    inorder(root, sorted = []) {
-        if (root === null) {
-            return sorted;
+    // In-order traversal of the tree
+    _inOrderTraversal(node, result) {
+        if (node !== null) {
+            this._inOrderTraversal(node.left, result);
+            result.push(node.key);
+            this._inOrderTraversal(node.right, result);
         }
-        this.inorder(root.left, sorted);
-        sorted.push(root.data);
-        this.inorder(root.right, sorted);
-        return sorted;
     }
 
-    toString() {
-        return this.root ? this.inorder(this.root).toString() : "Empty Tree";
+    inOrder() {
+        const result = [];
+        this._inOrderTraversal(this.root, result);
+        return result;
     }
 }
 
 // Example usage
-const splayTree = new SplayTree();
-const data = [2, 29, 26, -1, 10, 0, 2, 11];
+const tree = new SplayTree();
+tree.insert(10);
+tree.insert(20);
+tree.insert(30);
+tree.insert(40);
+tree.insert(50);
 
-data.forEach(i => splayTree.insert(i));
+console.log("In-order traversal after inserts:", tree.inOrder());
 
-console.log("Tree:", splayTree.toString());
+console.log("Searching for 30:", tree.search(30));  // true
+console.log("Searching for 25:", tree.search(25));  // false
 
-console.log("Insert 20:", splayTree.insert(20));
-console.log("Delete 29:", splayTree.delete(29));
-console.log("Search 10:", splayTree.search(10));
-console.log("Find Min:", splayTree.findMin());
-console.log("Find Max:", splayTree.findMax());
-console.log("Tree after operations:", splayTree.toString());
+tree.delete(30);
+console.log("In-order traversal after deleting 30:", tree.inOrder());
+
+console.log("Find Min:", tree.findMin());  // 10
+console.log("Find Max:", tree.findMax());  // 50
