@@ -1,8 +1,8 @@
 class DoublyLinkedList {
-    constructor() {
-        this.size = 0;
-        this.head = null;
-        this.tail = null;
+    constructor(data) {
+        this.head = data !== undefined ? new DoublyLinkedList.Node(data) : null;  // The first node in the list
+        this.size = data !== undefined ? 1 : 0;     // Number of nodes in the list
+        this.tail = this.head !== null ? this.head : null;
     }
 
     // Internal Node class
@@ -235,7 +235,7 @@ class DoublyLinkedList {
 }
 
 // Example usage:
-const dll = new DoublyLinkedList();
+const dll = new DoublyLinkedList(5);
 dll.add(3);
 dll.addFirst(2);
 dll.addLast(4);
@@ -250,9 +250,11 @@ dll.removeLast();
 
 console.log(dll.toString()); // [ 3, ]
 
-dll.add(5);
+
 dll.add(6);
+console.log(dll.toString()); // [ 3, ]
 dll.add(7);
+console.log(dll.toString()); // [ 3, ]
 
 console.log(dll.removeAt(1)); // 6
 console.log(dll.toString());  // [ 3, 7, ]
