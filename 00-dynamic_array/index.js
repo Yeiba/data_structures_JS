@@ -71,6 +71,14 @@ class DynamicArray {
                     newArr[j++] = this.arr[i];
                 }
             }
+            // another way to remove
+            // for (let i = 0, j = 0; i < this.len; i++, j++) {
+            //     if (i !== rmIndex) {
+            //         newArr[j] = this.arr[i];
+            //     } else {
+            //         j--
+            //     }
+            // }
             this.arr = newArr;
             this.capacity = --this.len;
             return data;
