@@ -1,7 +1,7 @@
 class LinkedList {
-    constructor() {
-        this.head = null;  // The first node in the list
-        this.size = 0;      // Number of nodes in the list
+    constructor(data) {
+        this.head = data !== undefined ? new LinkedList.Node(data) : null;  // The first node in the list
+        this.size = data !== undefined ? 1 : 0;     // Number of nodes in the list
     }
 
     // Node class represents each element in the linked list
@@ -135,7 +135,7 @@ class LinkedList {
 
 // Example usage:
 
-const ll = new LinkedList();
+const ll = new LinkedList(4);
 ll.append(10);
 ll.append(20);
 ll.append(30);
