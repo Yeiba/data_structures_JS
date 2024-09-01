@@ -1,194 +1,93 @@
-// Helper function to compute hash code for strings
-String.prototype.hashCode = function () {
-    let hash = 0;
-    for (let i = 0; i < this.length; i++) {
-        const char = this.charCodeAt(i);
-        hash = (hash << 5) - hash + char;
-        hash = hash & hash; // Convert to 32bit integer
-    }
-    return hash;
-};
-
-// Entry class to store key-value pairs
-class Entry {
-    constructor(key, value) {
-        if (key === null) throw new Error("Null key is not allowed");
-        this.key = key;
-        this.value = value;
-        this.hash = this.computeHash();
+class HashTable {
+    constructor(size = 53) {
+        this.keyMap = new Array(size);
     }
 
-    computeHash() {
-        return typeof this.key === 'string' ? this.key.hashCode() : this.key.toString().hashCode();
+    // Hash function to convert key into an index
+    _hash(key) {
+        let total = 0;
+        let prime = 31; // Using a prime number for better distribution of hash values
+        for (let i = 0; i < Math.min(key.length, 100); i++) {
+            let char = key[i];
+            let value = char.charCodeAt(0) - 96;
+            total = (total * prime + value) % this.keyMap.length;
+        }
+        return total;
     }
 
-    equals(other) {
-        return this.hash === other.hash && this.key === other.key;
+    // Insert key-value pair into the hash table
+    set(key, value) {
+        let index = this._hash(key);
+        if (!this.keyMap[index]) {
+            this.keyMap[index] = [];
+        }
+        this.keyMap[index].push([key, value]);
     }
 
-    toString() {
-        return `${this.key} => ${this.value}`;
-    }
-}
-
-// Hash table class
-class HashTableSeparateChaining {
-    constructor(capacity = 3, maxLoadFactor = 0.75) {
-        if (capacity < 0) throw new Error("Illegal capacity");
-        if (maxLoadFactor <= 0 || Number.isNaN(maxLoadFactor) || !Number.isFinite(maxLoadFactor))
-            throw new Error("Illegal maxLoadFactor");
-
-        this.maxLoadFactor = maxLoadFactor;
-        this.capacity = Math.max(3, capacity);
-        this.threshold = Math.floor(this.capacity * this.maxLoadFactor);
-        this.size = 0;
-        this.table = Array(this.capacity).fill(null).map(() => []);
-    }
-
-    normalizeIndex(keyHash) {
-        return Math.abs(keyHash) % this.capacity;
-    }
-
-    clear() {
-        this.table = Array(this.capacity).fill(null).map(() => []);
-        this.size = 0;
-    }
-
-    containsKey(key) {
-        return this.hasKey(key);
-    }
-
-    hasKey(key) {
-        const bucketIndex = this.normalizeIndex(this.computeHash(key));
-        return this.bucketSeekEntry(bucketIndex, key) !== null;
-    }
-
-    put(key, value) {
-        return this.insert(key, value);
-    }
-
-    add(key, value) {
-        return this.insert(key, value);
-    }
-
-    insert(key, value) {
-        if (key === null) throw new Error("Null key is not allowed");
-        const newEntry = new Entry(key, value);
-        const bucketIndex = this.normalizeIndex(newEntry.hash);
-        return this.bucketInsertEntry(bucketIndex, newEntry);
-    }
-
+    // Retrieve value by key
     get(key) {
-        if (key === null) return null;
-        const bucketIndex = this.normalizeIndex(this.computeHash(key));
-        const entry = this.bucketSeekEntry(bucketIndex, key);
-        return entry ? entry.value : null;
+        let index = this._hash(key);
+        if (this.keyMap[index]) {
+            for (let i = 0; i < this.keyMap[index].length; i++) {
+                if (this.keyMap[index][i][0] === key) {
+                    return this.keyMap[index][i][1];
+                }
+            }
+        }
+        return undefined;
     }
 
+    // Remove key-value pair
     remove(key) {
-        if (key === null) return null;
-        const bucketIndex = this.normalizeIndex(this.computeHash(key));
-        return this.bucketRemoveEntry(bucketIndex, key);
-    }
-
-    bucketRemoveEntry(bucketIndex, key) {
-        const entry = this.bucketSeekEntry(bucketIndex, key);
-        if (entry !== null) {
-            const bucket = this.table[bucketIndex];
-            const index = bucket.indexOf(entry);
-            if (index > -1) bucket.splice(index, 1);
-            this.size--;
-            return entry.value;
-        }
-        return null;
-    }
-
-    bucketInsertEntry(bucketIndex, entry) {
-        const bucket = this.table[bucketIndex];
-        const existentEntry = this.bucketSeekEntry(bucketIndex, entry.key);
-
-        if (existentEntry === null) {
-            bucket.push(entry);
-            this.size++;
-            if (this.size > this.threshold) this.resizeTable();
-            return null; // No previous entry
-        } else {
-            const oldVal = existentEntry.value;
-            existentEntry.value = entry.value;
-            return oldVal;
-        }
-    }
-
-    bucketSeekEntry(bucketIndex, key) {
-        const bucket = this.table[bucketIndex];
-        for (const entry of bucket) {
-            if (entry.key === key) return entry;
-        }
-        return null;
-    }
-
-    resizeTable() {
-        const oldTable = this.table;
-        this.capacity *= 2;
-        this.threshold = Math.floor(this.capacity * this.maxLoadFactor);
-        this.table = Array(this.capacity).fill(null).map(() => []);
-
-        for (const bucket of oldTable) {
-            for (const entry of bucket) {
-                const bucketIndex = this.normalizeIndex(entry.hash);
-                this.table[bucketIndex].push(entry);
+        let index = this._hash(key);
+        if (this.keyMap[index]) {
+            for (let i = 0; i < this.keyMap[index].length; i++) {
+                if (this.keyMap[index][i][0] === key) {
+                    this.keyMap[index].splice(i, 1);
+                    return true;
+                }
             }
         }
+        return false;
     }
 
-    computeHash(key) {
-        return typeof key === 'string' ? key.hashCode() : key.toString().hashCode();
-    }
-
+    // Retrieve all keys in the hash table
     keys() {
-        const keys = [];
-        for (const bucket of this.table) {
-            for (const entry of bucket) {
-                keys.push(entry.key);
+        let keysArray = [];
+        for (let i = 0; i < this.keyMap.length; i++) {
+            if (this.keyMap[i]) {
+                for (let j = 0; j < this.keyMap[i].length; j++) {
+                    keysArray.push(this.keyMap[i][j][0]);
+                }
             }
         }
-        return keys;
+        return keysArray;
     }
 
+    // Retrieve all values in the hash table
     values() {
-        const values = [];
-        for (const bucket of this.table) {
-            for (const entry of bucket) {
-                values.push(entry.value);
+        let valuesArray = [];
+        for (let i = 0; i < this.keyMap.length; i++) {
+            if (this.keyMap[i]) {
+                for (let j = 0; j < this.keyMap[i].length; j++) {
+                    valuesArray.push(this.keyMap[i][j][1]);
+                }
             }
         }
-        return values;
-    }
-
-    toString() {
-        let str = '{';
-        for (const bucket of this.table) {
-            for (const entry of bucket) {
-                str += entry.toString() + ', ';
-            }
-        }
-        str = str.replace(/, $/, '');
-        str += '}';
-        return str;
+        return valuesArray;
     }
 }
 
 // Example usage
-const hashTable = new HashTableSeparateChaining();
+const ht = new HashTable();
+ht.set("pink", "#ffc0cb");
+ht.set("blue", "#0000ff");
+ht.set("black", "#000000");
+ht.set("white", "#ffffff");
 
-hashTable.put("key1", "value1");
-hashTable.put("key2", "value2");
-hashTable.put("key3", "value3");
-
-console.log("HashTable:", hashTable.toString());
-console.log("Get 'key1':", hashTable.get("key1"));
-console.log("Contains 'key2':", hashTable.containsKey("key2"));
-console.log("Keys:", hashTable.keys());
-console.log("Values:", hashTable.values());
-console.log("Remove 'key3':", hashTable.remove("key3"));
-console.log("HashTable after removal:", hashTable.toString());
+console.log("Value associated with 'pink':", ht.get("pink"));  // "#ffc0cb"
+console.log("Value associated with 'blue':", ht.get("blue"));  // "#0000ff"
+console.log("Removing 'pink':", ht.remove("pink"));            // true
+console.log("Value associated with 'pink' after removal:", ht.get("pink"));  // undefined
+console.log("All keys in hash table:", ht.keys());            // ["blue", "black", "white"]
+console.log("All values in hash table:", ht.values());        // ["#0000ff", "#000000", "#ffffff"]
