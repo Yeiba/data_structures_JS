@@ -1,7 +1,8 @@
 class LinkedList {
-    constructor(data) {
-        this.head = data !== undefined ? new LinkedList.Node(data) : null;  // The first node in the list
-        this.size = data !== undefined ? 1 : 0;     // Number of nodes in the list
+    constructor(firstElem = null) {
+        this.head = firstElem ? new LinkedList.Node(firstElem) : firstElem;  // The first node in the list
+        this.size = firstElem ? 1 : 0;     // Number of nodes in the list
+        this.tail = this.head !== null ? this.head : null;
     }
 
     // Node class represents each element in the linked list
@@ -11,6 +12,24 @@ class LinkedList {
             this.next = null; // Pointer to the next node
         }
     };
+    // Clear the linked list
+    clear() {
+        let trav = this.head;
+        while (trav !== null) {
+            const next = trav.next;
+            trav.next = null;
+            trav.data = null;
+            trav = next;
+        }
+        this.head = this.tail = trav = null;
+        this.size = 0;
+
+    }
+    // Check if the list is empty
+    isEmpty() {
+        return this.size === 0;
+    }
+
 
     // Add a new node with the given data at the end of the list
     append(data) {
@@ -127,10 +146,6 @@ class LinkedList {
         return this.size;
     }
 
-    // Check if the list is empty
-    isEmpty() {
-        return this.size === 0;
-    }
 
     // Iterator
     [Symbol.iterator]() {
@@ -171,3 +186,7 @@ console.log('Is empty:', ll.isEmpty()); // Output: Is empty: false
 for (const item of ll) {
     console.log(item); // 10, 15, 30
 }
+
+ll.clear();
+console.log('Size:', ll.getSize()); // Output: Size: 0
+console.log('Is empty:', ll.isEmpty()); // Output: Is empty: true

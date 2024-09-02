@@ -1,62 +1,66 @@
+
 class Stack {
     constructor(firstElem = null) {
-        this.list = [];
-        if (firstElem !== null) {
-            this.push(firstElem);
+        this.head = firstElem ? new Stack.Node(firstElem) : firstElem;
+        this._size = firstElem ? 1 : 0;
+    }
+
+    static Node = class {
+        constructor(data) {
+            this.data = data;
+            this.next = null;
         }
     }
 
     // Return the number of elements in the stack
     size() {
-        return this.list.length;
+        return this._size;
     }
 
     // Check if the stack is empty
     isEmpty() {
-        return this.size() === 0;
+        return this._size === 0;
     }
 
     // Push an element on the stack
     push(elem) {
-        this.list.push(elem);
+        const newNode = new Stack.Node(elem);
+        newNode.next = this.head;
+        this.head = newNode;
+        this._size++;
     }
 
     // Pop an element off the stack
     // Throws an error if the stack is empty
     pop() {
-        try {
-            if (this.isEmpty()) {
-                throw new Error("Empty stack");
-            }
-            return this.list.pop();
-        } catch (e) {
-            console.error("Error:", e.message);
+        if (this.isEmpty()) {
+            throw new Error("Empty stack");
         }
+        const poppedNode = this.head;
+        this.head = this.head.next;
+        this._size--;
+        return poppedNode.data;
     }
 
     // Peek the top of the stack without removing an element
     // Throws an error if the stack is empty
     peek() {
-        try {
-            if (this.isEmpty()) {
-                throw new Error("Empty stack");
-            }
-            return this.list[this.list.length - 1];
-        } catch (e) {
-            console.error("Error:", e.message);
+        if (this.isEmpty()) {
+            throw new Error("Empty stack");
         }
+        return this.head.data;
     }
 
     // Allow users to iterate through the stack using an iterator
     [Symbol.iterator]() {
-        let index = this.list.length;
-        const list = this.list;
+        let current = this.head;
 
         return {
             next() {
-                if (index > 0) {
-                    index--;
-                    return { value: list[index], done: false };
+                if (current) {
+                    const value = current.data;
+                    current = current.next;
+                    return { value, done: false };
                 } else {
                     return { done: true };
                 }

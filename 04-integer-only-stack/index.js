@@ -1,97 +1,93 @@
-class IntStack {
-    constructor(maxSize) {
-        this.ar = new Array(maxSize);
-        this.pos = 0;
+
+
+class IntegerStack {
+    constructor(firstElem = null) {
+        if (firstElem !== null && !Number.isInteger(firstElem)) {
+            throw new TypeError("Only integers are allowed");
+        }
+        this.head = firstElem ? new IntegerStack.Node(firstElem) : firstElem;
+        this._size = firstElem ? 1 : 0;
+    }
+    static Node = class {
+        constructor(data) {
+            this.data = data;
+            this.next = null;
+        }
     }
 
-    // Returns the number of elements in the stack
+    // Return the number of elements in the stack
     size() {
-        return this.pos;
+        return this._size;
     }
 
-    // Returns true/false on whether the stack is empty
+    // Check if the stack is empty
     isEmpty() {
-        return this.pos === 0;
+        return this._size === 0;
     }
 
-    // Returns the element at the top of the stack
-    peek() {
-        try {
-            if (this.isEmpty()) {
-                throw new Error("Stack is empty");
-            }
-            return this.ar[this.pos - 1];
-        } catch (e) {
-            console.error("Error:", e.message);
+    // Push an integer on the stack
+    push(elem) {
+        if (!Number.isInteger(elem)) {
+            throw new TypeError("Only integers are allowed");
         }
+        const newNode = new IntegerStack.Node(elem);
+        newNode.next = this.head;
+        this.head = newNode;
+        this._size++;
     }
 
-    // Adds an element to the top of the stack
-    push(value) {
-        try {
-            if (typeof value !== 'number' || !Number.isInteger(value)) {
-                throw new TypeError("Only integers are allowed");
-            }
-            this.ar[this.pos++] = value;
-        } catch (e) {
-            console.error("Error:", e.message);
-        }
-    }
-
-    // Removes and returns the element from the top of the stack
+    // Pop an element off the stack
+    // Throws an error if the stack is empty
     pop() {
-        try {
-            if (this.isEmpty()) {
-                throw new Error("Stack is empty");
-            }
-            return this.ar[--this.pos];
-        } catch (e) {
-            console.error("Error:", e.message);
+        if (this.isEmpty()) {
+            throw new Error("Empty stack");
         }
+        const poppedNode = this.head;
+        this.head = this.head.next;
+        this._size--;
+        return poppedNode.data;
+    }
+
+    // Peek the top of the stack without removing an element
+    // Throws an error if the stack is empty
+    peek() {
+        if (this.isEmpty()) {
+            throw new Error("Empty stack");
+        }
+        return this.head.data;
+    }
+
+    // Allow users to iterate through the stack using an iterator
+    [Symbol.iterator]() {
+        let current = this.head;
+
+        return {
+            next() {
+                if (current) {
+                    const value = current.data;
+                    current = current.next;
+                    return { value, done: false };
+                } else {
+                    return { done: true };
+                }
+            }
+        };
     }
 }
 
 // Example usage:
-const s = new IntStack(5);
+const stack = new IntegerStack();
+stack.push(1);
+stack.push(2);
+stack.push(3);
 
-s.push(1);
-s.push(2);
-s.push(3);
-s.push(4);
-s.push(5);
+console.log(stack.pop());  // 3
+console.log(stack.peek()); // 2
+console.log(stack.size()); // 2
 
-console.log(s.pop()); // 5
-console.log(s.pop()); // 4
-console.log(s.pop()); // 3
-
-s.push(3);
-s.push(4);
-s.push(5);
-
-while (!s.isEmpty()) {
-    console.log(s.pop());
+for (const item of stack) {
+    console.log(item); // 2, 1
 }
 
-// Benchmark test (optional)
-function benchMarkTest() {
-    const n = 10000000;
-    const intStack = new IntStack(n);
-
-    // IntStack benchmark
-    let start = performance.now();
-    for (let i = 0; i < n; i++) intStack.push(i);
-    for (let i = 0; i < n; i++) intStack.pop();
-    let end = performance.now();
-    console.log("IntStack Time:", (end - start) / 1000, "seconds");
-
-    // Array benchmark
-    const arrayStack = [];
-    start = performance.now();
-    for (let i = 0; i < n; i++) arrayStack.push(i);
-    for (let i = 0; i < n; i++) arrayStack.pop();
-    end = performance.now();
-    console.log("Array Time:", (end - start) / 1000, "seconds");
-}
-
-// Uncomment the line below to run the benchmark test
-// benchMarkTest();
+// The following will throw an error
+// stack.push("hello"); // Error: Only integers are allowed

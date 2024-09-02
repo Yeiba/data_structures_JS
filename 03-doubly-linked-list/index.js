@@ -1,7 +1,7 @@
 class DoublyLinkedList {
-    constructor(data) {
-        this.head = data !== undefined ? new DoublyLinkedList.Node(data) : null;  // The first node in the list
-        this.size = data !== undefined ? 1 : 0;     // Number of nodes in the list
+    constructor(firstElem = null) {
+        this.head = firstElem ? new DoublyLinkedList.Node(firstElem) : firstElem;  // The first node in the list
+        this.size = firstElem ? 1 : 0;     // Number of nodes in the list
         this.tail = this.head !== null ? this.head : null;
     }
 
@@ -28,8 +28,8 @@ class DoublyLinkedList {
     }
 
     // Return the size of the linked list
-    size() {
-        return this.size;
+    Size() {
+        return this.size
     }
 
     // Check if the linked list is empty
@@ -265,3 +265,7 @@ console.log(dll.contains(5)); // false
 for (const item of dll) {
     console.log(item); // 3, 7
 }
+
+dll.clear();
+console.log('Size:', dll.Size()); // Output: Size: 0
+console.log('Is empty:', dll.isEmpty()); // Output: Is empty: true
