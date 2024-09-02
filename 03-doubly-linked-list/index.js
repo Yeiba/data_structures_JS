@@ -235,7 +235,7 @@ class DoublyLinkedList {
 }
 
 // Example usage:
-const dll = new DoublyLinkedList(5);
+const dll = new DoublyLinkedList();
 dll.add(3);
 dll.addFirst(2);
 dll.addLast(4);
@@ -261,3 +261,7 @@ console.log(dll.toString());  // [ 3, 7, ]
 
 console.log(dll.indexOf(7));  // 1
 console.log(dll.contains(5)); // false
+
+for (const item of dll) {
+    console.log(item); // 3, 7
+}

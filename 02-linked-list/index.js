@@ -131,11 +131,29 @@ class LinkedList {
     isEmpty() {
         return this.size === 0;
     }
+
+    // Iterator
+    [Symbol.iterator]() {
+        let trav = this.head;
+
+        return {
+            next: () => {
+                if (trav !== null) {
+                    const value = trav.data;
+                    trav = trav.next;
+                    return { value, done: false };
+                } else {
+                    return { done: true };
+                }
+            }
+        };
+    }
 }
 
 // Example usage:
 
-const ll = new LinkedList(4);
+const ll = new LinkedList();
+
 ll.append(10);
 ll.append(20);
 ll.append(30);
@@ -149,3 +167,7 @@ ll.printList();  // Output: 10 -> 15 -> 30 -> null
 
 console.log('Size:', ll.getSize()); // Output: Size: 3
 console.log('Is empty:', ll.isEmpty()); // Output: Is empty: false
+
+for (const item of ll) {
+    console.log(item); // 10, 15, 30
+}
